@@ -4,12 +4,12 @@
   "description": "ssb-db2 plugin for about messages related to the author",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/staltz/ssb-about-self.git"
+    "url": "git+https://github.com/ssbc/ssb-about-self.git"
   },
   "bugs": {
-    "url": "https://github.com/staltz/ssb-about-self/issues"
+    "url": "https://github.com/ssbc/ssb-about-self/issues"
   },
-  "homepage": "https://github.com/staltz/ssb-about-self#readme",
+  "homepage": "https://github.com/ssbc/ssb-about-self#readme",
   "author": "Andre Staltz <contact@staltz.com>",
   "contributors": [
     "Anders Rune Jensen <arj03@protonmail.ch>"
