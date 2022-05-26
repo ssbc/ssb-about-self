@@ -6,7 +6,7 @@ SPDX-License-Identifier: CC0-1.0
 
 # ssb-about-self
 
-> An SSB secret-stack plugin for *profile data* using ssb-db2
+> An SSB secret-stack plugin for _profile data_ using ssb-db2
 
 ## Install
 
@@ -24,46 +24,53 @@ npm install ssb-about-self
  SecretStack({appKey: require('ssb-caps').shs})
    .use(require('ssb-master'))
 +  .use(require('ssb-db2'))
-+  .use(require('ssb-search2'))
++  .use(require('ssb-about-self'))
    .use(require('ssb-conn'))
    .use(require('ssb-blobs'))
    .call(null, config)
 ```
 
-Now, just pluck the ssb-db2 operator at `ssb.search2.operator` and use it like this:
+This plugin indexes only self-assigned about messages in contrast to
+[ssb-social-index](https://github.com/ssbc/ssb-social-index) that indexes all
+about messages.
+
+Example usage:
 
 ```js
-// Pluck the operator and name it whatever you want, e.g. `containsWords`
-const containsWords = sbot.search2.operator;
+const SecretStack = require('secret-stack')
+const caps = require('ssb-caps')
 
-sbot.db.query(
-  where(containsWords('secure scuttlebutt')),
-  toCallback((err, msgs) => {
-    console.log(msgs) // all messages containing "secure" and "scuttlebutt"
-                      // somewhere inside `msg.value.content.text`
-  })
-),
+const ssb = SecretStack({ caps })
+  .use(require('ssb-db2'))
+  .use(require('ssb-db2/about-self')) // include index
+  .call(null, { path: './' })
+
+ssb.aboutSelf.get(ssb.id, (err, profile) => {
+  console.log('My profile name is: ' + profile.name)
+})
 ```
 
-"But I get wrong results! I get messages that have 'secure' somewhere and 'scuttlebutt' somewhere else, while in reality I really want 'secure scuttlebutt' together!"
+The **`profile`** object has the following fields:
 
-No problem! Just add a post-processing step that ensures the exact expression is together:
+- `name`: string
+- `description`: string
+- `image`: blob ID as a string
 
-```js
-pull(
-  sbot.db.query(
-    where(containsWords('secure scuttlebutt')),
-    toPullStream()
-  ),
-  pull.filter((msg) =>
-    msg.value.content.text.toLowerCase().includes('secure scuttlebutt'),
-  ),
-  pull.collect((err, msgs) => {
-    console.log(msgs); // all messages containing exactly the expression
-                       // "secure scuttlebutt" inside `msg.value.content.text`
-  }),
-);
-```
+## API
+
+## `ssb.aboutSelf.get(feedId, cb)` (muxrpc "async")
+
+- `feedId`: the feedId to get the profile for
+- `cb`: callback(err, profile)
+
+Async API to get the latest self-assigned profile data for the given `feedId`.
+
+## `ssb.aboutSelf.stream(feedId)` (muxrpc "source")
+
+- `feedId`: the feedId to get the profile for
+
+pull-stream "source" API to get the latest self-assigned profile data for the
+given `feedId` followed by any live updates to that profile.
 
 ## License
 
