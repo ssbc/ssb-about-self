@@ -17,7 +17,7 @@ const B_ABOUT = Buffer.from('about')
 // feedId => hydratedAboutObj
 module.exports = class AboutSelf extends Plugin {
   constructor(log, dir) {
-    super(log, dir, 'aboutSelf', 3, 'json', 'json')
+    super(log, dir, 'aboutSelf', 4, 'json', 'json')
     this.profiles = new Map()
   }
 
@@ -78,13 +78,16 @@ module.exports = class AboutSelf extends Plugin {
   updateProfileData(author, content) {
     let profile = this.profiles.has(author) ? this.profiles.get(author) : {}
 
-    if (content.name) profile.name = content.name
+    if (isString(content.name)) profile.name = content.name
 
-    if (content.description) profile.description = content.description
+    if (isString(content.description)) profile.description = content.description
 
-    if (content.image && typeof content.image.link === 'string')
+    if (content.image && isString(content.image.link))
       profile.image = content.image.link
-    else if (typeof content.image === 'string') profile.image = content.image
+    else if (isString(content.image)) profile.image = content.image
+
+    if (isBoolean(content.publicWebHosting))
+      profile.publicWebHosting = content.publicWebHosting
 
     this.profiles.set(author, profile)
     return profile
@@ -109,4 +112,12 @@ module.exports = class AboutSelf extends Plugin {
   getProfiles() {
     return this.profiles
   }
+}
+
+function isString(str) {
+  return typeof str === 'string'
+}
+
+function isBoolean(bool) {
+  return typeof bool === 'boolean'
 }
