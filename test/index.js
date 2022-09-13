@@ -28,7 +28,13 @@ let sbot = SecretStack({ appKey: caps.shs })
 const db = sbot.db
 
 test('get self assigned', (t) => {
-  const about = { type: 'about', about: sbot.id, name: 'arj', image: '%blob' }
+  const about = {
+    type: 'about',
+    about: sbot.id,
+    name: 'arj',
+    image: '&blob',
+    publicWebHosting: true,
+  }
   const aboutOther = { type: 'about', about: '@other', name: 'staltz' }
 
   db.publish(about, (err, postMsg) => {
@@ -41,12 +47,13 @@ test('get self assigned', (t) => {
         t.error(err, 'no err')
         t.equal(profile.name, about.name)
         t.equal(profile.image, about.image)
+
         const newAbout = {
           type: 'about',
           about: sbot.id,
           name: 'arj2',
           image: {
-            link: '%blob',
+            link: '&blob',
             size: 1024,
           },
         }
@@ -68,7 +75,13 @@ test('get self assigned', (t) => {
 })
 
 test('get live profile', (t) => {
-  const about = { type: 'about', about: sbot.id, name: 'arj', image: '%blob' }
+  const about = {
+    type: 'about',
+    about: sbot.id,
+    name: 'arj',
+    image: '&blob',
+    publicWebHosting: true,
+  }
   const aboutOther = { type: 'about', about: '@other', name: 'staltz' }
 
   db.publish(about, (err, postMsg) => {
@@ -79,23 +92,32 @@ test('get live profile', (t) => {
 
       sbot.aboutSelf.get(sbot.id, (err, profile) => {
         t.error(err, 'no err')
-
         t.equal(profile.name, about.name)
         t.equal(profile.image, about.image)
 
-        const newAbout = { type: 'about', about: sbot.id, name: 'arj03' }
+        const newAbout = {
+          type: 'about',
+          about: sbot.id,
+          name: 'arj03',
+          publicWebHosting: false
+        }
 
-        const expectedNames = ['arj', 'arj03']
+        const expected = [
+          { name: 'arj', image: '&blob', publicWebHosting: true },
+          { name: 'arj03', image: '&blob', publicWebHosting: false }
+        ]
         pull(
           sbot.aboutSelf.stream(sbot.id),
           pull.drain((profile) => {
-            const e = expectedNames.shift()
+            const e = expected.shift()
             t.ok(e)
-            t.equal(profile.name, e, e)
-            if (expectedNames.length === 0) {
+            t.deepEqual(profile, e, e)
+
+            if (expected.length === 0) {
               t.end()
               return false // abort the drain
             }
+            t.end()
           })
         )
 
