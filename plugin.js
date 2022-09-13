@@ -89,11 +89,12 @@ module.exports = class AboutSelf extends Plugin {
     if (isBoolean(content.publicWebHosting))
       profile.publicWebHosting = content.publicWebHosting
 
-    this.profiles[author] = profile
+    this.profiles.set(author, profile)
+    return profile
   }
 
   getProfile(feedId) {
-    return this.profiles[feedId] || {}
+    return this.profiles.get(feedId) || {}
   }
 
   getLiveProfile(feedId) {

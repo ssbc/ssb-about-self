@@ -117,7 +117,6 @@ test('get live profile', (t) => {
               t.end()
               return false // abort the drain
             }
-            t.end()
           })
         )
 
