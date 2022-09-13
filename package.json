@@ -1,6 +1,6 @@
 {
   "name": "ssb-about-self",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "ssb-db2 plugin for about messages related to the author",
   "repository": {
     "type": "git",
